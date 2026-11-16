@@ -196,7 +196,7 @@ public static VideoAds make(
     private void load() {
         if (loading || loaded) return;
 
-        if (UserConfig.getInstance(currentAccount).isPremium() && MessagesController.getInstance(currentAccount).isSponsoredDisabled()) {
+        if (true /* papergram: no video ads */ || UserConfig.getInstance(currentAccount).isPremium() && MessagesController.getInstance(currentAccount).isSponsoredDisabled()) {
             return;
         }
 

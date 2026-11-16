@@ -6531,6 +6531,68 @@ public class Theme {
         return currentTheme.isDark();
     }
 
+    public static final String MONET_PREF_KEY = "papergram_monet";
+    private static final java.util.HashMap<ThemeAccent, Integer> monetOriginals = new java.util.HashMap<>();
+
+    public static void setMonetEnabled(Context context, boolean enabled) {
+        MessagesController.getGlobalMainSettings().edit().putBoolean(MONET_PREF_KEY, enabled).apply();
+        if (enabled) {
+            applyMonetAccent(context);
+        } else {
+            restoreMonetAccent();
+        }
+    }
+
+    public static void restoreMonetAccent() {
+        if (monetOriginals.isEmpty()) {
+            return;
+        }
+        for (java.util.Map.Entry<ThemeAccent, Integer> entry : monetOriginals.entrySet()) {
+            entry.getKey().accentColor = entry.getValue();
+        }
+        monetOriginals.clear();
+        refreshThemeColors();
+    }
+
+    public static boolean isMonetEnabled() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && MessagesController.getGlobalMainSettings().getBoolean(MONET_PREF_KEY, false);
+    }
+
+    /**
+     * Material You (Monet): takes the system accent color (follows the wallpaper)
+     * and applies it as the accent of the active built-in theme.
+     * Returns true if the accent was changed.
+     */
+    public static boolean applyMonetAccent(Context context) {
+        if (context == null || !isMonetEnabled()) {
+            return false;
+        }
+        try {
+            final ThemeInfo theme = currentTheme;
+            if (theme == null || theme.themeAccents == null) {
+                return false;
+            }
+            final ThemeAccent accent = theme.getAccent(false);
+            if (accent == null) {
+                return false;
+            }
+            final int res = theme.isDark() ? android.R.color.system_accent1_200 : android.R.color.system_accent1_600;
+            final int color = 0xFF000000 | context.getResources().getColor(res, context.getTheme());
+            if (accent.accentColor == color) {
+                return false;
+            }
+            if (!monetOriginals.containsKey(accent)) {
+                monetOriginals.put(accent, accent.accentColor);
+            }
+            accent.accentColor = color;
+            refreshThemeColors();
+            return true;
+        } catch (Throwable e) {
+            FileLog.e(e);
+            return false;
+        }
+    }
+
     public static ThemeInfo getActiveTheme() {
         return currentTheme;
     }

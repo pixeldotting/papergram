@@ -21726,7 +21726,7 @@ public class MessagesController extends BaseController implements NotificationCe
         NotificationCenter.getInstance(currentAccount).postNotificationName(NotificationCenter.updateInterfaces, UPDATE_MASK_REACTIONS_READ);
     }
 
-    public SponsoredMessagesInfo getSponsoredMessages(long dialogId) {
+    public SponsoredMessagesInfo getSponsoredMessages(long dialogId) { if (true) return null; /* papergram: ads disabled */
         SponsoredMessagesInfo info = sponsoredMessages.get(dialogId);
         if (info != null && (info.loading || Math.abs(SystemClock.elapsedRealtime() - info.loadTime) <= 5 * 60 * 1000)) {
             return info;

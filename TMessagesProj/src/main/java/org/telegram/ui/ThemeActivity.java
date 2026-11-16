@@ -158,6 +158,7 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
     private int textSizeRow;
     private int settingsRow;
     private int directShareRow;
+    private int monetRow;
     @Keep
     private int sensitiveContentRow;
     private int raiseToSpeakRow;
@@ -690,6 +691,7 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
         changeUserColor = -1;
         settingsRow = -1;
         directShareRow = -1;
+        monetRow = -1;
         sensitiveContentRow = -1;
         enableAnimationsRow = -1;
         raiseToSpeakRow = -1;
@@ -805,6 +807,9 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
 
             otherHeaderRow = rowCount++;
             directShareRow = rowCount++;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                monetRow = rowCount++;
+            }
             TL_account.contentSettings contentSettings = getMessagesController().getContentSettings();
             if (contentSettings != null && contentSettings.sensitive_can_change) {
                 sensitiveContentRow = rowCount++;
@@ -1214,6 +1219,13 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
         ((DefaultItemAnimator) listView.getItemAnimator()).setDelayAnimations(false);
         frameLayout.addView(listView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
         listView.setOnItemClickListener((view, position, x, y) -> {
+            if (position == monetRow) {
+                Theme.setMonetEnabled(context, !Theme.isMonetEnabled());
+                if (view instanceof TextCheckCell) {
+                    ((TextCheckCell) view).setChecked(Theme.isMonetEnabled());
+                }
+                return;
+            }
             if (position == enableAnimationsRow) {
                 SharedPreferences preferences = MessagesController.getGlobalMainSettings();
                 boolean animations = preferences.getBoolean("view_animations", true);
@@ -2708,6 +2720,8 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
                     TextCheckCell textCheckCell = (TextCheckCell) holder.itemView;
                     if (position == scheduleLocationRow) {
                         textCheckCell.setTextAndCheck(getString("AutoNightLocation", R.string.AutoNightLocation), Theme.autoNightScheduleByLocation, true);
+                    } else if (position == monetRow) {
+                        textCheckCell.setTextAndValueAndCheck("Динамические цвета (Monet)", "Цвета приложения следуют за обоями системы", Theme.isMonetEnabled(), false, true);
                     } else if (position == enableAnimationsRow) {
                         SharedPreferences preferences = MessagesController.getGlobalMainSettings();
                         textCheckCell.setTextAndCheck(getString("EnableAnimations", R.string.EnableAnimations), preferences.getBoolean("view_animations", true), true);
@@ -2863,7 +2877,7 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
                 return TYPE_BRIGHTNESS;
             } else if (position == scheduleLocationRow || position == sendByEnterRow ||
                     position == raiseToSpeakRow || position == raiseToListenRow || position == pauseOnRecordRow ||
-                    position == directShareRow || position == chatBlurRow || position == pauseOnMediaRow || position == nextMediaTapRow || position == sensitiveContentRow) {
+                    position == directShareRow || position == monetRow || position == chatBlurRow || position == pauseOnMediaRow || position == nextMediaTapRow || position == sensitiveContentRow) {
                 return TYPE_TEXT_CHECK;
             } else if (position == textSizeRow) {
                 return TYPE_TEXT_SIZE;

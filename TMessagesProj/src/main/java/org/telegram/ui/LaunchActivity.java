@@ -7210,6 +7210,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
     protected void onResume() {
         super.onResume();
         WidgetMedia.onAppPaused(false);
+        Theme.applyMonetAccent(this);
         isResumed = true;
         PipCoordinator.getInstance().onActivityResume(this);
         if (onResumeStaticCallback != null) {
@@ -7378,6 +7379,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         AndroidUtilities.setPreferredMaxRefreshRate(getWindow());
         super.onConfigurationChanged(newConfig);
         PipCoordinator.getInstance().onConfigurationChanged(newConfig);
+        Theme.applyMonetAccent(this);
         AndroidUtilities.resetTabletFlag();
         invalidateTabletMode();
         checkLayout();
